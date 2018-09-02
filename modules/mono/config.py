@@ -152,7 +152,8 @@ def configure(env):
 
         copy_file(os.path.join(mono_lib_path, 'mono', '4.5'), assemblies_output_dir, 'mscorlib.dll')
     else:
-        sharedlib_ext = '.dylib' if sys.platform == 'darwin' else '.so'
+        osxcross = (env['platform'] == 'osx' and ("OSXCROSS_ROOT" in os.environ))
+        sharedlib_ext = '.dylib' if (sys.platform == 'darwin' or osxcross) else '.so'
 
         mono_root = ''
         mono_lib_path = ''
@@ -172,7 +173,10 @@ def configure(env):
                 raise RuntimeError('Building with mono_static=yes, but failed to find the mono prefix with pkg-config. Specify one manually')
 
         if mono_root:
-            mono_version = mono_root_try_find_mono_version(mono_root)
+            if osxcross:
+                mono_version = mono_osxcross_try_find_mono_version(mono_root)
+            else:
+                mono_version = mono_root_try_find_mono_version(mono_root)
             configure_for_mono_version(env, mono_version)
 
             mono_lib_path = os.path.join(mono_root, 'lib')
@@ -190,7 +194,7 @@ def configure(env):
             if mono_static:
                 mono_lib_file = os.path.join(mono_lib_path, 'lib' + mono_lib + '.a')
 
-                if sys.platform == 'darwin':
+                if sys.platform == 'darwin' or osxcross:
                     env.Append(LINKFLAGS=['-Wl,-force_load,' + mono_lib_file])
                 elif sys.platform == 'linux' or sys.platform == 'linux2':
                     env.Append(LINKFLAGS=['-Wl,-whole-archive', mono_lib_file, '-Wl,-no-whole-archive'])
@@ -199,7 +203,7 @@ def configure(env):
             else:
                 env.Append(LIBS=[mono_lib])
 
-            if sys.platform == 'darwin':
+            if sys.platform == 'darwin' or osxcross:
                 env.Append(LIBS=['iconv', 'pthread'])
             elif sys.platform == 'linux' or sys.platform == 'linux2':
                 env.Append(LIBS=['m', 'rt', 'dl', 'pthread'])
@@ -277,6 +281,14 @@ def pkgconfig_try_find_mono_version():
         except ValueError:
             pass
     return greater_version
+
+
+def mono_osxcross_try_find_mono_version(mono_root):
+    # The best fix I can come up with for this situation is to check the
+    # 'VERSION' file inside Mono.framework to get the version, since we can't
+    # execute the macOS binary for Mono to get the version string.
+    output = subprocess.check_output(['cat', os.path.join(mono_root, 'VERSION')])
+    return LooseVersion(output.strip())
 
 
 def mono_root_try_find_mono_version(mono_root):
