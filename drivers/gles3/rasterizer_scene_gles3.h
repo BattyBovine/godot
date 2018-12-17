@@ -850,6 +850,7 @@ public:
 
 	void iteration();
 	void initialize();
+	void reinit_directional_shadows();
 	void finalize();
 	RasterizerSceneGLES3();
 	~RasterizerSceneGLES3();

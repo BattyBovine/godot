@@ -584,6 +584,8 @@ public:
 	FUNC3(request_frame_drawn_callback, Object *, const StringName &, const Variant &)
 
 	virtual void init();
+	virtual void reinit_directional_shadows();
+	void thread_reinit_directional_shadows();
 	virtual void finish();
 	virtual void draw(bool p_swap_buffers, double frame_step);
 	virtual void sync();

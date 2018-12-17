@@ -123,6 +123,26 @@ void VisualServerWrapMT::init() {
 	}
 }
 
+void VisualServerWrapMT::reinit_directional_shadows() {
+
+	if (create_thread) {
+
+		atomic_increment(&draw_pending);
+		command_queue.push(this, &VisualServerWrapMT::thread_reinit_directional_shadows);
+	} else {
+		
+		visual_server->reinit_directional_shadows();
+	}
+}
+
+void VisualServerWrapMT::thread_reinit_directional_shadows() {
+
+	if (!atomic_decrement(&draw_pending)) {
+
+		visual_server->reinit_directional_shadows();
+	}
+}
+
 void VisualServerWrapMT::finish() {
 
 	if (thread) {

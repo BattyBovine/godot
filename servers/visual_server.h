@@ -988,6 +988,7 @@ public:
 	virtual void sync() = 0;
 	virtual bool has_changed() const = 0;
 	virtual void init() = 0;
+	virtual void reinit_directional_shadows() = 0;
 	virtual void finish() = 0;
 
 	/* STATUS INFORMATION */

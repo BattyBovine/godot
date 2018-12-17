@@ -262,6 +262,11 @@ void RasterizerGLES2::initialize() {
 	scene->initialize();
 }
 
+void RasterizerGLES2::reinit_directional_shadows() {
+
+	scene->reinit_directional_shadows();
+}
+
 void RasterizerGLES2::begin_frame(double frame_step) {
 	time_total += frame_step;
 

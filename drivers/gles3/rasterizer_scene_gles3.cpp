@@ -5179,6 +5179,34 @@ void RasterizerSceneGLES3::iteration() {
 	state.scene_shader.set_conditional(SceneShaderGLES3::VCT_QUALITY_HIGH, GLOBAL_GET("rendering/quality/voxel_cone_tracing/high_quality"));
 }
 
+void RasterizerSceneGLES3::reinit_directional_shadows() {
+
+	GLuint fbo = directional_shadow.fbo;
+	GLuint depth = directional_shadow.depth;
+	int size = next_power_of_2(GLOBAL_GET("rendering/quality/directional_shadow/size"));
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glGenTextures(1, &depth);
+	glBindTexture(GL_TEXTURE_2D, depth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size, size, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth, 0);
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		ERR_PRINT("Directional shadow framebuffer status invalid");
+	} else {
+		glDeleteTextures(1, &directional_shadow.depth);
+		glDeleteFramebuffers(1, &directional_shadow.fbo);
+		directional_shadow.fbo = fbo;
+		directional_shadow.depth = depth;
+		directional_shadow.size = size;
+	}
+}
+
 void RasterizerSceneGLES3::finalize() {
 }
 

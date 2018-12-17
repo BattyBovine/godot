@@ -670,6 +670,7 @@ public:
 	virtual void sync();
 	virtual bool has_changed() const;
 	virtual void init();
+	virtual void reinit_directional_shadows();
 	virtual void finish();
 
 	/* STATUS INFORMATION */

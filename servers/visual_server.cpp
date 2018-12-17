@@ -1769,6 +1769,7 @@ void VisualServer::_bind_methods() {
 
 #ifndef _3D_DISABLED
 	ClassDB::bind_method(D_METHOD("directional_light_create"), &VisualServer::directional_light_create);
+	ClassDB::bind_method(D_METHOD("reinit_directional_shadows"), &VisualServer::reinit_directional_shadows);
 	ClassDB::bind_method(D_METHOD("omni_light_create"), &VisualServer::omni_light_create);
 	ClassDB::bind_method(D_METHOD("spot_light_create"), &VisualServer::spot_light_create);
 

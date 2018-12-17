@@ -136,6 +136,10 @@ void VisualServerRaster::init() {
 
 	VSG::rasterizer->initialize();
 }
+void VisualServerRaster::reinit_directional_shadows() {
+
+	VSG::rasterizer->reinit_directional_shadows();
+}
 void VisualServerRaster::finish() {
 
 	if (test_cube.is_valid()) {
