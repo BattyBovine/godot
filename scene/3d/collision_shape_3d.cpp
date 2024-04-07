@@ -96,8 +96,10 @@ void CollisionShape3D::_notification(int p_what) {
 
 		case NOTIFICATION_ENTER_TREE: {
 #ifdef TOOLS_ENABLED
-			if (debug_color == Color(0.0, 0.0, 0.0, 0.0)) {
-				debug_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/shape");
+			if (Engine::get_singleton()->is_editor_hint()) {
+				if (debug_color == Color(0.0, 0.0, 0.0, 0.0)) {
+					debug_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/shape");
+				}
 			}
 #endif // TOOLS_ENABLED
 			if (collision_object) {
