@@ -33,14 +33,14 @@
 			The collision shape debug color.
 			[b]Note:[/b] The default value is [member EditorSettings.editors/3d_gizmos/gizmo_colors/shape]. The [code]Color(0, 0, 0, 0)[/code] value documented here is a placeholder, and not the actual default debug color.
 		</member>
+		<member name="debug_fill" type="bool" setter="set_enable_debug_fill" getter="get_enable_debug_fill" default="false">
+			Show a solid preview collision in addition to the wireframe.
+		</member>
 		<member name="disabled" type="bool" setter="set_disabled" getter="is_disabled" default="false" keywords="enabled">
 			A disabled collision shape has no effect in the world.
 		</member>
 		<member name="shape" type="Shape3D" setter="set_shape" getter="get_shape">
 			The actual shape owned by this collision shape.
-		</member>
-		<member name="solid_preview" type="bool" setter="set_enable_solid_preview" getter="get_enable_solid_preview" default="false">
-			Show a solid preview collision in addition to the wireframe.
 		</member>
 	</members>
 </class>

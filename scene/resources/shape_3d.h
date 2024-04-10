@@ -44,8 +44,8 @@ class Shape3D : public Resource {
 	real_t custom_bias = 0.0;
 	real_t margin = 0.04;
 
-	Color debug_color;
-	bool solid_preview = false;
+	Color debug_color = Color(1.0, 1.0, 1.0);
+	bool debug_fill = false;
 
 	Ref<ArrayMesh> debug_mesh_cache;
 	Ref<Material> collision_material;
@@ -81,8 +81,8 @@ public:
 	void set_debug_color(const Color &p_color);
 	Color get_debug_color() const;
 
-	void set_enable_solid_preview(bool p_enable);
-	bool get_enable_solid_preview() const;
+	void set_enable_debug_fill(bool p_enable);
+	bool get_enable_debug_fill() const;
 #endif // TOOLS_ENABLED
 
 	Shape3D();

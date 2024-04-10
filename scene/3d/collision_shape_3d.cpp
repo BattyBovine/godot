@@ -176,14 +176,14 @@ void CollisionShape3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_debug_color", "color"), &CollisionShape3D::set_debug_color);
 	ClassDB::bind_method(D_METHOD("get_debug_color"), &CollisionShape3D::get_debug_color);
 
-	ClassDB::bind_method(D_METHOD("set_enable_solid_preview", "enable"), &CollisionShape3D::set_enable_solid_preview);
-	ClassDB::bind_method(D_METHOD("get_enable_solid_preview"), &CollisionShape3D::get_enable_solid_preview);
+	ClassDB::bind_method(D_METHOD("set_enable_debug_fill", "enable"), &CollisionShape3D::set_enable_debug_fill);
+	ClassDB::bind_method(D_METHOD("get_enable_debug_fill"), &CollisionShape3D::get_enable_debug_fill);
 
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "debug_color"), "set_debug_color", "get_debug_color");
 	// Default value depends on a project setting, override for doc generation purposes.
 	ADD_PROPERTY_DEFAULT("debug_color", Color(0.0, 0.0, 0.0, 0.0));
 
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "solid_preview"), "set_enable_solid_preview", "get_enable_solid_preview");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_fill"), "set_enable_debug_fill", "get_enable_debug_fill");
 #endif // TOOLS_ENABLED
 }
 
@@ -198,7 +198,7 @@ void CollisionShape3D::set_shape(const Ref<Shape3D> &p_shape) {
 	if (shape.is_valid()) {
 #ifdef TOOLS_ENABLED
 		shape->set_debug_color(debug_color);
-		shape->set_enable_solid_preview(solid_preview);
+		shape->set_enable_debug_fill(debug_fill);
 #endif // TOOLS_ENABLED
 		shape->connect_changed(callable_mp((Node3D *)this, &Node3D::update_gizmos));
 	}
@@ -246,16 +246,16 @@ Color CollisionShape3D::get_debug_color() const {
 	return debug_color;
 }
 
-void CollisionShape3D::set_enable_solid_preview(bool p_enable) {
-	solid_preview = p_enable;
+void CollisionShape3D::set_enable_debug_fill(bool p_enable) {
+	debug_fill = p_enable;
 	if (shape.is_valid()) {
-		shape->set_enable_solid_preview(p_enable);
+		shape->set_enable_debug_fill(p_enable);
 	}
 	update_gizmos();
 }
 
-bool CollisionShape3D::get_enable_solid_preview() const {
-	return solid_preview;
+bool CollisionShape3D::get_enable_debug_fill() const {
+	return debug_fill;
 }
 
 bool CollisionShape3D::_property_can_revert(const StringName &p_name) const {

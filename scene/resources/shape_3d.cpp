@@ -75,12 +75,12 @@ Color Shape3D::get_debug_color() const {
 	return debug_color;
 }
 
-void Shape3D::set_enable_solid_preview(bool p_enable) {
-	solid_preview = p_enable;
+void Shape3D::set_enable_debug_fill(bool p_enable) {
+	debug_fill = p_enable;
 }
 
-bool Shape3D::get_enable_solid_preview() const {
-	return solid_preview;
+bool Shape3D::get_enable_debug_fill() const {
+	return debug_fill;
 }
 #endif // TOOLS_ENABLED
 
@@ -92,6 +92,8 @@ Ref<ArrayMesh> Shape3D::get_debug_mesh() {
 	Vector<Vector3> lines = get_debug_mesh_lines();
 
 	debug_mesh_cache = Ref<ArrayMesh>(memnew(ArrayMesh));
+
+	const Color lines_color = debug_color * Color(1.0, 1.0, 1.0, 0.25);
 
 	if (!lines.is_empty()) {
 		//make mesh
@@ -105,7 +107,7 @@ Ref<ArrayMesh> Shape3D::get_debug_mesh() {
 
 		for (int i = 0; i < lines.size(); i++) {
 			v[i] = lines[i];
-			c[i] = debug_color;
+			c[i] = lines_color;
 		}
 
 		Array lines_array;
@@ -118,8 +120,8 @@ Ref<ArrayMesh> Shape3D::get_debug_mesh() {
 		debug_mesh_cache->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, lines_array);
 		debug_mesh_cache->surface_set_material(0, material);
 
-		if (solid_preview) {
-			Array solid_array = get_debug_arraymesh_faces(debug_color * Color(1.0, 1.0, 1.0, 0.25))->surface_get_arrays(0);
+		if (debug_fill) {
+			Array solid_array = get_debug_arraymesh_faces(debug_color * Color(1.0, 1.0, 1.0, 0.0625))->surface_get_arrays(0);
 			debug_mesh_cache->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, solid_array);
 			debug_mesh_cache->surface_set_material(1, material);
 		}
@@ -134,7 +136,7 @@ Ref<Material> Shape3D::get_debug_collision_material() {
 	}
 
 	Ref<StandardMaterial3D> material = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
-	material->set_albedo(Color(1.0, 1.0, 1.0, 1.0));
+	material->set_albedo(Color(1.0, 1.0, 1.0));
 	material->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
 	material->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
 	material->set_render_priority(StandardMaterial3D::RENDER_PRIORITY_MIN + 1);

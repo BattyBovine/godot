@@ -50,10 +50,10 @@
 CollisionShape3DGizmoPlugin::CollisionShape3DGizmoPlugin() {
 	helper.instantiate();
 	create_collision_material("shape_material", 1.0);
-	create_collision_material("shape_material_arraymesh", 0.5);
+	create_collision_material("shape_material_arraymesh", 0.0625);
 
-	const Color gizmo_color_disabled = Color(1.0, 1.0, 1.0, 0.25);
-	create_material("shape_material_disabled", gizmo_color_disabled);
+	create_collision_material("shape_material_disabled", 0.125);
+	create_collision_material("shape_material_arraymesh_disabled", 0.015625);
 
 	create_handle_material("handles");
 }
@@ -62,18 +62,18 @@ CollisionShape3DGizmoPlugin::~CollisionShape3DGizmoPlugin() {
 }
 
 void CollisionShape3DGizmoPlugin::create_collision_material(const String &p_name, const float p_alpha) {
-	Color instantiated_color = EDITOR_GET("editors/3d_gizmos/gizmo_colors/instantiated");
 
 	Vector<Ref<StandardMaterial3D>> mats;
 
-	const Color collision_color(1.0, 1.0, 1.0, Math::pow(p_alpha, 2.2f));
+	const Color collision_color(1.0, 1.0, 1.0, p_alpha);
 
 	for (int i = 0; i < 4; i++) {
 		bool instantiated = i < 2;
 
 		Ref<StandardMaterial3D> material = Ref<StandardMaterial3D>(memnew(StandardMaterial3D));
 
-		Color color = instantiated ? instantiated_color : collision_color;
+		Color color = collision_color;
+		color.a *= instantiated ? 0.25 : 1.0;
 
 		material->set_albedo(color);
 		material->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
@@ -377,13 +377,14 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 	const Ref<StandardMaterial3D> material =
 			get_material(!cs->is_disabled() ? "shape_material" : "shape_material_disabled", p_gizmo);
-	const Ref<StandardMaterial3D> material_arraymesh = get_material("shape_material_arraymesh", p_gizmo);
+	const Ref<StandardMaterial3D> material_arraymesh =
+			get_material(!cs->is_disabled() ? "shape_material_arraymesh" : "shape_material_arraymesh_disabled", p_gizmo);
 	const Ref<Material> handles_material = get_material("handles");
 
-	if (cs->get_enable_solid_preview() && !cs->is_disabled()) {
-		Color color = cs->get_debug_color();
-		color.a *= p_gizmo->is_selected() ? 0.5 : 0.25;
-		Ref<ArrayMesh> array_mesh = s->get_debug_arraymesh_faces(color);
+	const Color collision_color = cs->is_disabled() ? Color(1.0, 1.0, 1.0, 0.75) : cs->get_debug_color();
+
+	if (cs->get_enable_debug_fill()) {
+		Ref<ArrayMesh> array_mesh = s->get_debug_arraymesh_faces(collision_color);
 		if (array_mesh.is_valid()) {
 			p_gizmo->add_mesh(array_mesh, material_arraymesh);
 		}
@@ -425,7 +426,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			collision_segments.push_back(Vector3(b.x, b.y, 0));
 		}
 
-		p_gizmo->add_lines(points, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(points, material, false, collision_color);
 		p_gizmo->add_collision_segments(collision_segments);
 		Vector<Vector3> handles;
 		handles.push_back(Vector3(r, 0, 0));
@@ -448,7 +449,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
 		const Vector<Vector3> handles = helper->box_get_handles(bs->get_size());
 
-		p_gizmo->add_lines(lines, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(lines, material, false, collision_color);
 		p_gizmo->add_collision_segments(lines);
 		p_gizmo->add_handles(handles, handles_material);
 	}
@@ -486,7 +487,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			points.push_back(Vector3(b.y, b.x, 0) + dud);
 		}
 
-		p_gizmo->add_lines(points, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(points, material, false, collision_color);
 
 		Vector<Vector3> collision_segments;
 
@@ -550,7 +551,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			}
 		}
 
-		p_gizmo->add_lines(points, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(points, material, false, collision_color);
 
 		Vector<Vector3> collision_segments;
 
@@ -608,7 +609,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			p.normal * p.d + p.normal * 3
 		};
 
-		p_gizmo->add_lines(points, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(points, material, false, collision_color);
 		p_gizmo->add_collision_segments(points);
 	}
 
@@ -627,7 +628,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 					points2.write[i * 2 + 1] = md.vertices[md.edges[i].vertex_b];
 				}
 
-				p_gizmo->add_lines(points2, material, false, cs->get_debug_color());
+				p_gizmo->add_lines(points2, material, false, collision_color);
 				p_gizmo->add_collision_segments(points2);
 			}
 		}
@@ -636,7 +637,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 	if (Object::cast_to<ConcavePolygonShape3D>(*s)) {
 		Ref<ConcavePolygonShape3D> cs2 = s;
 		Ref<ArrayMesh> mesh = cs2->get_debug_mesh();
-		p_gizmo->add_lines(cs2->get_debug_mesh_lines(), material, false, cs->get_debug_color());
+		p_gizmo->add_lines(cs2->get_debug_mesh_lines(), material, false, collision_color);
 		p_gizmo->add_collision_segments(cs2->get_debug_mesh_lines());
 	}
 
@@ -647,7 +648,7 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 			Vector3(),
 			Vector3(0, 0, rs->get_length())
 		};
-		p_gizmo->add_lines(points, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(points, material, false, collision_color);
 		p_gizmo->add_collision_segments(points);
 		Vector<Vector3> handles;
 		handles.push_back(Vector3(0, 0, rs->get_length()));
@@ -658,6 +659,6 @@ void CollisionShape3DGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 		Ref<HeightMapShape3D> hms = s;
 
 		Vector<Vector3> lines = hms->get_debug_mesh_lines();
-		p_gizmo->add_lines(lines, material, false, cs->get_debug_color());
+		p_gizmo->add_lines(lines, material, false, collision_color);
 	}
 }

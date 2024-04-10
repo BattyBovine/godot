@@ -50,7 +50,7 @@ class CollisionShape3D : public Node3D {
 
 #ifdef TOOLS_ENABLED
 	Color debug_color = Color(0.0, 0.0, 0.0, 0.0);
-	bool solid_preview = false;
+	bool debug_fill = false;
 #endif // TOOLS_ENABLED
 
 protected:
@@ -77,8 +77,8 @@ public:
 	void set_debug_color(const Color &p_color);
 	Color get_debug_color() const;
 
-	void set_enable_solid_preview(bool p_enable);
-	bool get_enable_solid_preview() const;
+	void set_enable_debug_fill(bool p_enable);
+	bool get_enable_debug_fill() const;
 #endif // TOOLS_ENABLED
 
 	PackedStringArray get_configuration_warnings() const override;
