@@ -76,7 +76,7 @@ void CollisionShape3DGizmoPlugin::create_collision_material(const String &p_name
 
 		material->set_albedo(color);
 		material->set_shading_mode(StandardMaterial3D::SHADING_MODE_UNSHADED);
-		material->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA);
+		material->set_transparency(StandardMaterial3D::TRANSPARENCY_ALPHA_DEPTH_PRE_PASS);
 		material->set_render_priority(StandardMaterial3D::RENDER_PRIORITY_MIN + 1);
 		material->set_cull_mode(StandardMaterial3D::CULL_BACK);
 		material->set_flag(StandardMaterial3D::FLAG_DISABLE_FOG, true);
